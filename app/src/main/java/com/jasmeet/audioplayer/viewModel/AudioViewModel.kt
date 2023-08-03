@@ -9,66 +9,14 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 
 
-//@HiltViewModel
-//class AudioViewModel
-//@Inject constructor(
-//    private val mediaPlayer: MediaPlayer
-//) : ViewModel() {
-//
-//    val isLoading = mutableStateOf(false)
-//    val isAudioPlaying = mutableStateOf(false)
-//
-//    init {
-//        mediaPlayer.setOnCompletionListener {
-//            isAudioPlaying.value = false
-//        }
-//    }
-//
-//    fun togglePlayback(url: String) {
-//        if (!isLoading.value) {
-//            if (isAudioPlaying.value) {
-//                mediaPlayer.pause()
-//                isAudioPlaying.value = false
-//
-//            } else {
-//                mediaPlayer.reset()
-//
-//                try {
-//                    mediaPlayer.apply {
-//                        setDataSource(url)
-//                        isLoading.value = true
-//                        prepareAsync()
-//
-//                        setOnPreparedListener {
-//                            isAudioPlaying.value = true
-//                            isLoading.value = false
-//                            start()
-//                        }
-//                    }
-//                } catch (e: Exception) {
-//                    e.printStackTrace()
-//                    isLoading.value = false
-//                }
-//            }
-//        }
-//    }
-//
-//    override fun onCleared() {
-//        mediaPlayer.release()
-//        super.onCleared()
-//    }
-//}
-
 @HiltViewModel
 class AudioViewModel @Inject constructor() : ViewModel() {
     private val mediaPlayer = MediaPlayer()
 
-  //  private var activeAudioUrl: String? = null
-
     private val activeAudioUrl: MutableState<String?> = mutableStateOf(null)
 
     val isLoading = mutableStateOf(false)
-    val isAudioPlaying = mutableStateOf(false)
+    private val isAudioPlaying = mutableStateOf(false)
 
     init {
         mediaPlayer.setOnCompletionListener {

@@ -58,7 +58,7 @@ android {
 
 dependencies {
 
-    implementation("androidx.core:core-ktx:1.9.0")
+    implementation("androidx.core:core-ktx:1.10.1")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.6.1")
     implementation("androidx.activity:activity-compose:1.7.2")
     implementation(platform("androidx.compose:compose-bom:2023.03.00"))
@@ -84,16 +84,16 @@ dependencies {
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.7.0-alpha01")
 
     // media player
-    implementation ("androidx.media:media:1.5.0")
-    implementation ("com.google.android.exoplayer:exoplayer:2.17.0")
-    implementation ("com.google.android.exoplayer:extension-mediasession:2.17.0")
-
-    //coroutines
-    implementation( "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.5.0")
-    implementation( "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.5.0")
+    implementation ("androidx.media:media:1.6.0")
+    implementation ("com.google.android.exoplayer:exoplayer:2.19.0")
+    implementation ("com.google.android.exoplayer:extension-mediasession:2.19.0")
 
     //material icons
     implementation("androidx.compose.material:material-icons-extended:1.6.0-alpha02")
+
+    //Glide compose
+    implementation("com.github.bumptech.glide:compose:1.0.0-alpha.1")
+
 }
 
 kapt {
