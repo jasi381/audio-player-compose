@@ -29,6 +29,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -37,15 +38,15 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
 import com.jasmeet.audioplayer.components.AppBarComponent
 import com.jasmeet.audioplayer.data.AudioData
 import com.jasmeet.audioplayer.data.data
 import com.jasmeet.audioplayer.ui.theme.AudioPlayerTheme
-import com.jasmeet.audioplayer.viewModel.AudioViewModel
+import com.jasmeet.audioplayer.utils.AudioPlayer
 import dagger.hilt.android.AndroidEntryPoint
+import java.util.concurrent.TimeUnit
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -54,7 +55,9 @@ class MainActivity : ComponentActivity() {
         setContent {
             AudioPlayerTheme {
                 Surface(
-                    modifier = Modifier.fillMaxSize().background(Color(0xff0e1d41)),
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(Color(0xff0e1d41)),
                     color =Color.Black
                 ) {
                     MainLayout(data = data)
@@ -70,7 +73,6 @@ class MainActivity : ComponentActivity() {
 @OptIn(ExperimentalGlideComposeApi::class)
 @Composable
 fun AudioPlayerScreen(
-    audioPlayerViewModel: AudioViewModel,
     audioUrl: String,
     imageUrl:String,
     body:String,
@@ -80,10 +82,16 @@ fun AudioPlayerScreen(
 
 
 ) {
-    val isAudioPlaying = audioPlayerViewModel.isAudioPlayingForUrl(audioUrl)
+    //val isAudioPlaying = audioPlayerViewModel.isAudioPlayingForUrl(audioUrl)
+    val isAudio = AudioPlayer.isAudioPlayingForUrl(audioUrl)
+    //val audioDuration = AudioPlayer.audioDuration.intValue
+    //val scope = rememberCoroutineScope()
+
 
     Row(
-        modifier = modifier.padding(horizontal = 5.dp).background(Color(0xff07132D).copy(alpha = 0.2f), RoundedCornerShape(10.dp)),
+        modifier = modifier
+            .padding(horizontal = 5.dp)
+            .background(Color(0xff0D1D41), RoundedCornerShape(5.dp)),
         verticalAlignment = Alignment.CenterVertically
 
     ) {
@@ -91,7 +99,7 @@ fun AudioPlayerScreen(
             model = imageUrl,
             contentDescription = "content Image",
             modifier = Modifier
-                .clip(RoundedCornerShape(topStart = 10.dp, bottomStart = 10.dp))
+                .clip(RoundedCornerShape(topStart = 5.dp, bottomStart = 5.dp))
                 .fillMaxWidth(0.47f)
                 .height(101.dp),
             contentScale = ContentScale.FillBounds
@@ -133,12 +141,13 @@ fun AudioPlayerScreen(
 
                 }
 
+                //val formattedDuration = formatDuration(audioDuration)
                 IconButton(
                     onClick = {
-                        audioPlayerViewModel.togglePlayback(url = audioUrl)
+                        AudioPlayer.togglePlayback(url = audioUrl)
                     }
                 ) {
-                    val icon = if (isAudioPlaying)
+                    val icon = if (isAudio)
                         Icons.Default.Pause
                     else
                         Icons.Default.PlayArrow
@@ -152,25 +161,18 @@ fun AudioPlayerScreen(
                             .size(24.dp),
 
                         )
-
-                    //if loading show progress bar
-//                    if (audioPlayerViewModel.isLoading.value){
-//                        CircularProgressIndicator(
-//                            modifier = Modifier
-//                                .background(Color(0xffc2c6cf), CircleShape)
-//                                .padding(5.dp)
-//                                .size(24.dp)
-//                        )
-//                    }
                 }
 
             }
             Spacer(modifier = Modifier.height(4.dp))
 
-
-
         }
+    }
 
+    DisposableEffect(Unit) {
+        onDispose {
+            AudioPlayer.release()
+        }
     }
 }
 
@@ -192,33 +194,51 @@ fun MainLayout(
             )
         }
     ) { paddingValues->
-        LazyColumn(
-            modifier = Modifier
-                .padding(
-                    top = paddingValues.calculateTopPadding(),
-                )
-                .fillMaxSize()
-                .background(Color(0xff07132D))
-        ){
-            items(data){data->
-                AudioPlayerScreen(
-                    audioPlayerViewModel = hiltViewModel(),
-                    audioUrl =data.audioUrl,
-                    imageUrl = data.imageUrl,
-                    body =data.body ,
-                    duration = data.duration,
-                    modifier = Modifier.padding(horizontal = 8.dp)
 
-                )
-                Spacer(modifier = Modifier.height(8.dp))
+        Surface(
+            modifier = Modifier
+            .padding(
+                  paddingValues,
+            )
+            .fillMaxSize(),
+            color = Color(0xff07132D)
+        ) {
+            LazyColumn(
+                modifier = Modifier
+                    .padding(
+                        top = 15.dp,
+                    )
+                    .fillMaxSize()
+                    .background(Color(0xff07132D))
+            ){
+                items(data){data->
+                    AudioPlayerScreen(
+                        audioUrl =data.audioUrl,
+                        imageUrl = data.imageUrl,
+                        body = data.body ,
+                        duration = data.duration,
+                        modifier = Modifier.padding(horizontal = 8.dp)
+
+                    )
+                    Spacer(modifier = Modifier.height(14.dp))
+                }
             }
+
         }
+
 
 
     }
 
 }
 
+
+fun formatDuration(duration: Int): String {
+    val minutes = TimeUnit.MILLISECONDS.toMinutes(duration.toLong())
+    val seconds = TimeUnit.MILLISECONDS.toSeconds(duration.toLong()) -
+            TimeUnit.MINUTES.toSeconds(minutes)
+    return String.format("%02d:%02d", minutes, seconds)
+}
 
 
 
